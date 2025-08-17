@@ -1,5 +1,3 @@
-# Test Automation Framework — Architecture & Flows
-
 ## 1) Framework topology
 
 ```mermaid
@@ -45,7 +43,7 @@ flowchart TD
   S([openNthResult(n)]) --> V{n >= 1?}
   V -- no --> E[throw IllegalArgumentException]
   V -- yes --> O[dismissSoftOverlays()]
-  O --> C[waitFor RESULTS_CONTAINER]
+  O --> C[wait for RESULTS_CONTAINER]
   C --> L[collect visible PRODUCT_CARDs]
   L --> K{cards.size < n?}
   K -- yes --> SC[scroll to lazy-load] --> L
@@ -53,33 +51,41 @@ flowchart TD
   T --> CL{Selenium click ok?}
   CL -- yes --> W
   CL -- no --> J[JS click(target)] --> W
-  W[wait PDP signal: /p/ URL OR title OR add button] --> R[return new ProductPage]
-
+  W[wait PDP signal (/p/ URL OR title OR add button)] --> R[return new ProductPage]
 flowchart TD
   A([searchFromHeader(term)]) --> D[dismissOverlays()]
   D --> M[closeAddToCartPanelIfOpen()]
-  M --> G[extra: wait until sheet/backdrop gone]
-  G --> T[scrollTo top]
+  M --> G[wait until sheet/backdrop gone]
+  G --> T[scroll to top]
   T --> F[ensure header search form visible]
   F --> H{input aria-hidden?}
   H -- yes --> X[click search icon to expand]
   H -- no --> I
-  X --> I[wait until input is interactable]
+  X --> I[wait until input interactable]
   I --> TY[type term + ENTER (fallback: JS set + ENTER)]
   TY --> R[BaseWebTest.stepOk + return SearchResultsPage]
-
+flowchart TD
+  A([searchFromHeader(term)]) --> D[dismissOverlays()]
+  D --> M[closeAddToCartPanelIfOpen()]
+  M --> G[wait until sheet/backdrop gone]
+  G --> T[scroll to top]
+  T --> F[ensure header search form visible]
+  F --> H{input aria-hidden?}
+  H -- yes --> X[click search icon to expand]
+  H -- no --> I
+  X --> I[wait until input interactable]
+  I --> TY[type term + ENTER (fallback: JS set + ENTER)]
+  TY --> R[BaseWebTest.stepOk + return SearchResultsPage]
 sequenceDiagram
   participant JT as JUnit Test
   participant S as https://api.restful-api.dev/objects
 
   JT->>S: GET /objects (Accept: JSON)
   S-->>JT: 200 OK (JSON array)
-
   JT->>JT: extract list
   JT->>JT: assert IDs unique
   JT->>JT: assert every name contains "Apple"
   JT->>JT: log pass/fail name lists
-
 flowchart LR
   subgraph BaseWebTest
     B1[BeforeEach: init driver, create Extent test]
@@ -87,6 +93,7 @@ flowchart LR
     B3[AfterEach: quit driver, flush report]
   end
   B1 --> B2 --> B3
+
 
 The test opens the site, searches ‘sofa’, opens the 1st result, adds it to the bag, closes the mini-cart safely, then uses the header search to look for ‘table’, opens the 3rd result, adds it, closes the mini-cart again, goes to the cart, counts items, and tries a coupon.
 

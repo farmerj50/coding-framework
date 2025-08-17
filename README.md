@@ -1,6 +1,4 @@
-## 1) Framework topology
 
-```mermaid
 graph TD
   T[JUnit 5 Tests] -->|calls| POM[Page Objects]
   T --> API[API layer (RestAssured)]
